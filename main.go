@@ -17,6 +17,7 @@ func main(){
 	R.GET("/employee/:code", database.GetEmployee)
 	R.POST("/employee", database.AddEmployees)
 	R.PATCH("/employee",  database.UpdateEmployee)
+	R.DELETE("/employee/:code", database.DeleteEmployee)
 	database.ConnectDatabase()
 	R.Run()
 }

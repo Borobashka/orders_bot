@@ -13,7 +13,7 @@ CREATE TABLE employee
 (
     employee_id integer UNIQUE,
     name character varying,
-    creationdate date,
+    creationdate date DEFAULT NOW(),
     exhausted boolean,
     role character varying,
     phone character varying
@@ -22,7 +22,7 @@ CREATE TABLE employee
 ALTER TABLE document 
 ADD CONSTRAINT FK_documents_employee FOREIGN KEY(employee_id) REFERENCES employee(employee_id)
 
-DROP TABLE document
+DROP TABLE document, employee
 
 SELECT *
 FROM employee;
@@ -43,5 +43,10 @@ VALUES
 		
 TRUNCATE TABLE document  RESTART IDENTITY
 
-UPDATE employee SET role='Изгой' WHERE employee_id = 123126
+INSERT INTO employee (employee_id, name, exhausted, role, phone)
+VALUES 
+		(123129, 'Unknow', false, 'Unknow', '+791232323')
 
+UPDATE employee SET creationdate='2024-04-01' WHERE employee_id = 12131
+
+DELETE FROM employee WHERE employee_id = 12131 

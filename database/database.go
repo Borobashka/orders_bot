@@ -13,13 +13,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// type Crud interface{
-// 	Get()
-// 	Post()
-// 	Update()
-// 	Delete()
-// }
-
 var Db *sql.DB 
 
 func ConnectDatabase(){
@@ -55,10 +48,10 @@ func GetEmployees(c *gin.Context) {
 
 	if employees == nil || len(employees) == 0 {
 		c.AbortWithStatus(http.StatusNotFound)
-		fmt.Println("Не найдено")
+		logger.Error.Log("Error loading GetEmployees", "err")
 	} else {
 		c.IndentedJSON(http.StatusOK, employees)
-		fmt.Println("Ваши продукты")
+		logger.Info.Log("Successfully get all employees", "")
 	}
 }
 
@@ -69,8 +62,10 @@ func GetEmployee(c *gin.Context) {
 
 	if product == nil {
 		c.AbortWithStatus(http.StatusNotFound)
+		logger.Error.Log("Error loading GetEmployee", "err")
 	} else {
 		c.IndentedJSON(http.StatusOK, product)
+		logger.Info.Log("Successfully get employee", "")
 	}
 }
 
@@ -81,12 +76,12 @@ func AddEmployees (c *gin.Context) {
 	if err := c.BindJSON(&empl); err != nil {
 		fmt.Println(empl)
 		c.AbortWithStatus(http.StatusBadRequest)
-		fmt.Println("Не найдено")
+		logger.Error.Log("Error loading AddEmployees", "err")
 	} else {
-		fmt.Println("Найдено")
+		logger.Info.Log("Successfully start AddEmployees!", "")
 		AddingEmployee(empl)
 		c.IndentedJSON(http.StatusCreated, empl)
-		fmt.Println("Обработанно")
+		logger.Info.Log("Successfully add employees", "")
 	}
 }
 
@@ -96,12 +91,26 @@ func UpdateEmployee(c *gin.Context) {
 
 	if err := c.BindJSON(&empl); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
-		fmt.Println("Не найдено")
+		logger.Error.Log("Error loading BindJSON UpdateEmployee ", "err")
 	} else {
-		fmt.Println("Найдено")
+		logger.Info.Log("Successfully start UpdateEmployee!", "")
 		UpEmployee(empl)
 		c.IndentedJSON(http.StatusCreated, empl)
-		fmt.Println("Обработанно")
+		logger.Info.Log("Successfully update employees", "")
+	}
+}
+
+func DeleteEmployee(c *gin.Context) {
+
+	code := c.Param("code")
+
+	if err := code; err == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+		logger.Error.Log("Error loading DeleteEmployee", "err")
+	} else {
+		logger.Info.Log("Successfully start DeleteEmployee!", "")
+		DelEmployee(code)
+		c.IndentedJSON(http.StatusCreated, "Employee with id:" + code + " was deleted")
 	}
 }
 

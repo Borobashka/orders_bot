@@ -129,3 +129,30 @@ func UpEmployee(empl Employee) {
 
 	defer insert.Close()
 }
+
+func DelEmployee(code string)  {
+
+	db, err := sql.Open("postgres", "postgres"+":"+"12345"+"@tcp(127.0.0.1:8080)/"+"orders_app")
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// defer the close till after this function has finished
+	// executing
+	defer db.Close()
+
+
+	sqlstm := fmt.Sprintf("DELETE FROM employee WHERE employee_id = '%s'",
+			code)
+
+	insert, err := Db.Query(sqlstm)
+
+		// if there is an error inserting, handle it
+	if err != nil {
+		panic(err.Error())
+	}
+		
+	defer insert.Close()
+
+}
