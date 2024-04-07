@@ -5,7 +5,7 @@ CREATE TABLE document
     path character varying(126),
     name character varying(50), 
     author character varying(50),
-    creationdate date,
+    creationdate date DEFAULT NOW(),
     employee_id integer 
 );
 
@@ -44,8 +44,7 @@ VALUES
 TRUNCATE TABLE document  RESTART IDENTITY
 
 INSERT INTO employee (employee_id, name, exhausted, role, phone)
-VALUES 
-		(123129, 'Unknow', false, 'Unknow', '+791232323')
+VALUES (123129, 'Unknow', false, 'Unknow', '+791232323')
 
 UPDATE employee SET creationdate='2024-04-01' WHERE employee_id = 12131
 

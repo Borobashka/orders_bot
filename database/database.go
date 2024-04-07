@@ -58,7 +58,7 @@ func GetEmployees(c *gin.Context) {
 func GetEmployee(c *gin.Context) {
 
 	code := c.Param("code")
-	product := GettingtEmployee(code)
+	product := GettingEmployee(code)
 
 	if product == nil {
 		c.AbortWithStatus(http.StatusNotFound)
@@ -69,7 +69,7 @@ func GetEmployee(c *gin.Context) {
 	}
 }
 
-func AddEmployees (c *gin.Context) {
+func AddEmployee (c *gin.Context) {
 
 	var empl Employee
 
@@ -111,7 +111,82 @@ func DeleteEmployee(c *gin.Context) {
 		logger.Info.Log("Successfully start DeleteEmployee!", "")
 		DelEmployee(code)
 		c.IndentedJSON(http.StatusCreated, "Employee with id:" + code + " was deleted")
+		logger.Info.Log("Employee with id:" + code + " was deleted", "")
 	}
 }
 
 
+//===================================================================DOCUMENT QUERIES==========================================================================//
+
+func GetDocuments(c *gin.Context) {
+
+	employees := GettingDocuments()
+
+	if employees == nil || len(employees) == 0 {
+		c.AbortWithStatus(http.StatusNotFound)
+		logger.Error.Log("Error loading GettingDocuments", "err")
+	} else {
+		c.IndentedJSON(http.StatusOK, employees)
+		logger.Info.Log("Successfully get all documents", "")
+	}
+}
+
+func GetDocument(c *gin.Context) {
+
+	code := c.Param("code")
+	product := GettingDocument(code)
+
+	if product == nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		logger.Error.Log("Error loading GetDocument", "err")
+	} else {
+		c.IndentedJSON(http.StatusOK, product)
+		logger.Info.Log("Successfully get document", "")
+	}
+}
+
+func AddDocument (c *gin.Context) {
+
+	var doc Document
+
+	if err := c.BindJSON(&doc); err != nil {
+		fmt.Println(doc)
+		c.AbortWithStatus(http.StatusBadRequest)
+		logger.Error.Log("Error loading AddDocument", "err")
+	} else {
+		logger.Info.Log("Successfully start AddDocument!", "")
+		AddingDocument(doc)
+		c.IndentedJSON(http.StatusCreated, doc)
+		logger.Info.Log("Successfully add document", "")
+	}
+}
+
+func UpdateDocument(c *gin.Context) {
+
+	var doc Document
+
+	if err := c.BindJSON(&doc); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		logger.Error.Log("Error loading BindJSON UpdateDocument", "err")
+	} else {
+		logger.Info.Log("Successfully start UpdateDocument!", "")
+		UpDocument(doc)
+		c.IndentedJSON(http.StatusCreated, doc)
+		logger.Info.Log("Successfully update document", "")
+	}
+}
+
+func DeleteDocument(c *gin.Context) {
+
+	code := c.Param("code")
+
+	if err := code; err == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+		logger.Error.Log("Error loading DeleteDocument", "err")
+	} else {
+		logger.Info.Log("Successfully start DeleteDocument!", "")
+		DelDocument(code)
+		c.IndentedJSON(http.StatusCreated, "Document with id:" + code + " was deleted")
+		logger.Info.Log("Document with id:" + code + " was deleted", "")
+	}
+}

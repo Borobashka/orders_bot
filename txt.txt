@@ -4,19 +4,35 @@
 2. наладить инструмент миграций
 3. написать запросы
     curl POST (
-        curl http://localhost:8080/employee     
-        --include     
-        --header "Content-Type: application/json"     
-        --request "POST"    
+        curl http://localhost:8080/employee \    
+        --include     \
+        --header "Content-Type: application/json"     \
+        --request "POST"    \
         --data '{"employee_id":12131, "name": "Alex","exhausted":true, "role": "dwd", "phone":"dwdw"}'
     )
 
-    curl PATHC(
+    curl POST (       
+    curl http://localhost:8080/document     
+    --include    
+    --header "Content-Type: application/json"     
+    --request "POST"   
+    --data '{"year": 2024, "name": "о проведении экзамена", "author": "охотник №6", "employee_id": 123127}'
+    )
+
+    curl PATH(
         curl http://localhost:8080/employee \
             --include \
             --header "Content-Type: application/json" \
             --request "PATCH" \
             --data '{"employee_id":123126, "name": "Хисока Морроу","exhausted":true, "role": "Враг", "phone":"+7911323232"}'
+    )
+
+    curl PATH(
+    curl http://localhost:8080/document \
+    --include \
+    --header "Content-Type: application/json" \
+    --request "PATCH" \
+    --data '{"document_id":6, "year": 2023, "name": "о проведении экзамена", "author": "охотник №7", "employee_id": 123127}'
     )
 4. написать логику на интерфейсах
 5. написать api
