@@ -1,0 +1,27 @@
+version: '3.8'
+
+
+
+services:
+
+  postgres:
+
+    image: postgres:latest
+
+    restart: always
+
+    environment:
+
+      POSTGRES_USER: postgres
+
+      POSTGRES_PASSWORD: 12345678
+
+      POSTGRES_DB: orders_app
+
+    ports:
+
+      - "5432:5432"
+
+    volumes:
+
+      - ./data:/var/lib/postgresql/data

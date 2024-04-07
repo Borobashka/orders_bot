@@ -1,0 +1,27 @@
+Задача: написать систему ведения и учета документов
+Средства: в качестве инструмента хранения данных, используется СУБД postgresql, в качестве интерфейса telegram бот
+1. создать БД
+2. наладить инструмент миграций
+3. написать запросы
+    curl POST (
+        curl http://localhost:8080/employee     
+        --include     
+        --header "Content-Type: application/json"     
+        --request "POST"    
+        --data '{"employee_id":12131, "name": "Alex","exhausted":true, "role": "dwd", "phone":"dwdw"}'
+    )
+
+    curl PATHC(
+        curl http://localhost:8080/employee \
+            --include \
+            --header "Content-Type: application/json" \
+            --request "PATCH" \
+            --data '{"employee_id":123126, "name": "Хисока Морроу","exhausted":true, "role": "Враг", "phone":"+7911323232"}'
+    )
+4. написать логику на интерфейсах
+5. написать api
+6. написать логику бота
+
+
+
+
