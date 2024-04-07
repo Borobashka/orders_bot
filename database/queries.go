@@ -31,6 +31,7 @@ func AddingEmployee(empl Employee) {
 	// if there is an error inserting, handle it
 	if err != nil {
 		panic(err.Error())
+		//
 	}
 
 	defer insert.Close()
