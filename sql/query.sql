@@ -25,7 +25,7 @@ ADD CONSTRAINT FK_documents_employee FOREIGN KEY(employee_id) REFERENCES employe
 DROP TABLE document, employee
 
 SELECT *
-FROM employee;
+FROM document;
 
 INSERT INTO document (year, path, name, author, creationdate, employee_id)
 VALUES 
