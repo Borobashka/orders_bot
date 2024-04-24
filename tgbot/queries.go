@@ -51,50 +51,6 @@ func (chatBot *ChatBot) ConnectDatabase() ChatBot {
 }
 
 
-func createNewEmployee(employee Employee) {
-	loadBytes, err := json.Marshal(employee)
-	if err != nil {
-		logger.Error.Log("error: неверная структура", "")
-	}
-
-	body := bytes.NewReader(loadBytes)
-
-	req, err := http.NewRequest("POST", "http://localhost:8080/employee", body)
-	if err != nil {
-		logger.Error.Log("error: неверный запрос", "")
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		logger.Error.Log("error: ", "")
-	}
-	defer resp.Body.Close()
-}
-
-func createNewDocument(document Document) {
-	loadBytes, err := json.Marshal(document)
-	if err != nil {
-		logger.Error.Log("error: неверная структура", "")
-	}
-
-	body := bytes.NewReader(loadBytes)
-
-	req, err := http.NewRequest("POST", "http://localhost:8080/document", body)
-	if err != nil {
-		logger.Error.Log("error: неверный запрос", "")
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		logger.Error.Log("error: ", "")
-	}
-	defer resp.Body.Close()
-}
-
 func selectEmployees( bot *tgbotapi.BotAPI, chatId int64){
 	
 
@@ -150,18 +106,19 @@ func selectDocuments( bot *tgbotapi.BotAPI, chatId int64){
 	if err != nil {
 		logger.Error.Log("error: неверная структура", "")
 	}
-	res := ""
+	res := "|Номер приказа|" + "|Год|" + "|Название| " + "|Автор|" + "\n"
 	for i := range doc {
 		Document_id := doc[i].Document_id
 		Year := doc[i].Year
 		Name := doc[i].Name
 		Author := doc[i].Author
-		Creationdate := doc[i].Creationdate
+	//	Creationdate := doc[i].Creationdate
 
-		res = "Номер приказа:" + strconv.Itoa(Document_id) + "\n" + "Год:" + strconv.Itoa(Year) + "\n" + "Название:" + Name + "\n" + "Автор:" + Author + "\n" + "Дата создания:" + Creationdate
-		bot.Send(tgbotapi.NewMessage(chatId,res))
+		res = res  + "\n" + "|" + strconv.Itoa(Document_id)+ "|" + strconv.Itoa(Year) + "|" +  Name + "|" +  Author + "|" 
 		fmt.Println("Ваш список приказов: ",res)
 	}
+
+	bot.Send(tgbotapi.NewMessage(chatId,res))
 }
 
 func selectDocument( bot *tgbotapi.BotAPI, chatId int64, code string){
@@ -192,4 +149,92 @@ func selectDocument( bot *tgbotapi.BotAPI, chatId int64, code string){
 	res := "Номер приказа:" + strconv.Itoa(Document_id) + "\n" + "Год:" + strconv.Itoa(Year) + "\n" + "Название:" + Name + "\n" + "Автор:" + Author + "\n" + "Дата создания:" + Creationdate
 	bot.Send(tgbotapi.NewMessage(chatId,res))
 	fmt.Println("Ваш приказ: ",res)
+}
+
+func createNewEmployee(employee Employee) {
+	loadBytes, err := json.Marshal(employee)
+	if err != nil {
+		logger.Error.Log("error: неверная структура", "")
+	}
+
+	body := bytes.NewReader(loadBytes)
+
+	req, err := http.NewRequest("POST", "http://localhost:8080/employee", body)
+	if err != nil {
+		logger.Error.Log("error: неверный запрос", "")
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		logger.Error.Log("error: ", "")
+	}
+	defer resp.Body.Close()
+}
+
+func createNewDocument(document Document) {
+	loadBytes, err := json.Marshal(document)
+	if err != nil {
+		logger.Error.Log("error: неверная структура", "")
+	}
+
+	body := bytes.NewReader(loadBytes)
+
+	req, err := http.NewRequest("POST", "http://localhost:8080/document", body)
+	if err != nil {
+		logger.Error.Log("error: неверный запрос", "")
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		logger.Error.Log("error: ", "")
+	}
+	defer resp.Body.Close()
+}
+
+func updateEmployee(employee Employee) {
+	loadBytes, err := json.Marshal(employee)
+	if err != nil {
+		logger.Error.Log("error: неверная структура", "")
+	}
+
+	body := bytes.NewReader(loadBytes)
+
+	req, err := http.NewRequest("PATCH", "http://localhost:8080/employee", body)
+	if err != nil {
+		logger.Error.Log("error: неверный запрос", "")
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		logger.Error.Log("error: ", "")
+	}
+	defer resp.Body.Close()
+}
+
+func updateDocument(document Document) {
+	loadBytes, err := json.Marshal(document)
+	if err != nil {
+		logger.Error.Log("error: неверная структура", "")
+	}
+
+	body := bytes.NewReader(loadBytes)
+
+	req, err := http.NewRequest("PATCH", "http://localhost:8080/document", body)
+	if err != nil {
+		logger.Error.Log("error: неверный запрос", "")
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		logger.Error.Log("error: ", "")
+	}
+	defer resp.Body.Close()
 }

@@ -61,7 +61,6 @@ func GettingEmployee(code string) *Employee {
 			return nil
 		}
 	} else {
-
 		return nil
 	}
 
