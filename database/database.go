@@ -27,7 +27,7 @@ func ConnectDatabase(){
 	//read our .env file
 	host := os.Getenv("HOST")
 	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
-	user := os.Getenv("USER")
+	user := os.Getenv("CLIENT")
 	dbname := os.Getenv("DB_NAME")
 	pass := os.Getenv("PASSWORD")
 
@@ -188,5 +188,18 @@ func DeleteDocument(c *gin.Context) {
 		DelDocument(code)
 		c.IndentedJSON(http.StatusCreated, "Document with id:" + code + " was deleted")
 		logger.Info.Log("Document with id:" + code + " was deleted", "")
+	}
+}
+
+func MaxIdDocument(c *gin.Context) {
+
+	employees := GettingMaxIdDocument()
+
+	if employees == nil{
+		c.AbortWithStatus(http.StatusNotFound)
+		logger.Error.Log("Error loading GettingMaxIdDocument", "err")
+	} else {
+		c.IndentedJSON(http.StatusOK, employees)
+		logger.Info.Log("Successfully get max id document", "")
 	}
 }

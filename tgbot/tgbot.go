@@ -2,6 +2,7 @@ package tgbot
 
 import (
 	"fmt"
+	"orders_bot/logger"
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -169,6 +170,10 @@ func StartBot() {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Документ создан")
 				msg.ReplyMarkup = MainMenu
 				ChatBot.Bot.Send(msg)
+				pandocdoc := PandocCreateDocument()
+				if pandocdoc != nil{
+					logger.Error.Log("error: ", "")
+				}
 				Document.State = 0
 				Tree.Right.NameFunc = ""
 				Tree.NameFunc = ""

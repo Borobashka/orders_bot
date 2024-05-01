@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"orders_bot/logger"
 	"os"
+	"os/exec"
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -173,7 +174,7 @@ func createNewEmployee(employee Employee) {
 	defer resp.Body.Close()
 }
 
-func createNewDocument(document Document) {
+func createNewDocument(document Document){
 	loadBytes, err := json.Marshal(document)
 	if err != nil {
 		logger.Error.Log("error: неверная структура", "")
@@ -237,4 +238,51 @@ func updateDocument(document Document) {
 		logger.Error.Log("error: ", "")
 	}
 	defer resp.Body.Close()
+}
+
+func PandocCreateDocument() error {
+
+	resp, err := http.Get("http://localhost:8080/maxiddocuments")
+	if err != nil {
+		logger.Error.Log("error: неверный запрос", "")
+		return err 
+	}
+
+	defer resp.Body.Close()
+
+	body, error := io.ReadAll(resp.Body)
+	if error != nil {
+		logger.Error.Log("error: ", "")
+		return err 
+	}
+
+	var doc Document
+	err = json.Unmarshal(body, &doc)
+	if err != nil {
+		logger.Error.Log("error: неверная структура", "")
+		return err 
+	}
+	Document_id := doc.Document_id
+
+	res := strconv.Itoa(Document_id) 
+
+
+	// Запускаем команду pandoc
+	// Команда и аргументы для pandoc
+
+	path := fmt.Sprintf("/home/alex/Study/Document/%s.docx", res)
+
+	cmdArgs := []string{"test.html", "-o", path}
+	fmt.Println(cmdArgs)
+	// Запускаем команду pandoc
+	cmd := exec.Command("pandoc", cmdArgs...)
+
+	// Запускаем команду и ждем ее завершения
+	err = cmd.Run()
+	if err != nil {
+		log.Fatalf("Ошибка при выполнении команды pandoc: %v", err)
+		return err
+	}
+
+	return nil
 }

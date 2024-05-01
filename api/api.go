@@ -18,6 +18,7 @@ func StartApi(){
 	R.DELETE("/employee/:code", database.DeleteEmployee)
 
 	R.GET("/documents", database.GetDocuments)
+	R.GET("/maxiddocuments", database.MaxIdDocument)
 	R.GET("/document/:code", database.GetDocument)
 	R.POST("/document", database.AddDocument)
 	R.PATCH("/document",  database.UpdateDocument)

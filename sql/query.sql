@@ -41,7 +41,7 @@ VALUES
 		(123126, 'Хисока Морроу', '2024-04-01', false, 'Охотник', '+791232323'),
 		(123127, 'Гон Фрикс', '2024-04-01', false, 'Охотник', '+791232323');
 		
-TRUNCATE TABLE document  RESTART IDENTITY
+TRUNCATE TABLE document  RESTART IDENTITY;
 
 INSERT INTO employee (employee_id, name, exhausted, role, phone)
 VALUES (123129, 'Unknow', false, 'Unknow', '+791232323')
@@ -49,3 +49,5 @@ VALUES (123129, 'Unknow', false, 'Unknow', '+791232323')
 UPDATE employee SET creationdate='2024-04-01' WHERE employee_id = 12131
 
 DELETE FROM employee WHERE employee_id = 12131 
+
+SELECT MAX(document_id) FROM document;

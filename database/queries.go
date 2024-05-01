@@ -306,3 +306,36 @@ func DelDocument(code string)  {
 		
 	defer insert.Close()
 }
+
+
+func GettingMaxIdDocument() *Document {
+
+	db, err := sql.Open("postgres", "postgres"+":"+"12345"+"@tcp(127.0.0.1:8080)/"+"orders_app")
+	doc := &Document{}
+	if err != nil {
+		// simply print the error to the console
+		fmt.Println("Err", err.Error())
+		// returns nil on error
+		return nil
+	}
+
+	defer db.Close()
+
+	sqlstm := fmt.Sprintf("SELECT MAX(document_id) FROM document")
+
+	results, err := Db.Query(sqlstm)
+
+	if err != nil {
+		fmt.Println("Err", err.Error())
+		return nil
+	}
+
+	if results.Next() {
+		err = results.Scan(&doc.Document_id)
+		if err != nil {
+			return nil
+		}
+	}
+
+	return doc
+}

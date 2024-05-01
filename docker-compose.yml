@@ -1,27 +1,18 @@
-version: '3.8'
-
-
-
 services:
-
-  postgres:
-
-    image: postgres:latest
-
-    restart: always
-
+  orders_apps:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: container_orders_app
     environment:
-
       POSTGRES_USER: postgres
-
-      POSTGRES_PASSWORD: 12345678
-
+      POSTGRES_PASSWORD: 12345
       POSTGRES_DB: orders_app
-
     ports:
-
-      - "5432:5432"
-
+      - '5433:5432'
+    expose:
+      - 5432
     volumes:
-
-      - ./data:/var/lib/postgresql/data
+      - orders_app_volume:/var/lib/postgresql/data
+volumes:
+  orders_app_volume:
