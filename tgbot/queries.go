@@ -10,6 +10,7 @@ import (
 	"orders_bot/logger"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -122,9 +123,45 @@ func selectDocuments( bot *tgbotapi.BotAPI, chatId int64){
 	bot.Send(tgbotapi.NewMessage(chatId,res))
 }
 
-func selectDocument( bot *tgbotapi.BotAPI, chatId int64, code string){
+func selectDocumentsYears( bot *tgbotapi.BotAPI, chatId int64, year string){
+	
+	resp, err := http.Get("http://localhost:8080/documents/" + year)
+	if err != nil {
+		logger.Error.Log("error: неверный запрос", "")
+	}
 
-	resp, err := http.Get("http://localhost:8080/document/" + code)
+	defer resp.Body.Close()
+
+	body, error := io.ReadAll(resp.Body)
+	if error != nil {
+		logger.Error.Log("error: ", "")
+	}
+
+	var doc []Document
+	err = json.Unmarshal(body, &doc)
+	if err != nil {
+		logger.Error.Log("error: неверная структура", "")
+	}
+	res := "|Номер приказа|" + "|Год|" + "|Название| " + "|Автор|" + "\n"
+	for i := range doc {
+		Document_id := doc[i].Document_id
+		Year := doc[i].Year
+		Name := doc[i].Name
+		Author := doc[i].Author
+	//	Creationdate := doc[i].Creationdate
+
+		res = res  + "\n" + "|" + strconv.Itoa(Document_id)+ "|" + strconv.Itoa(Year) + "|" +  Name + "|" +  Author + "|" 
+		fmt.Println("Ваш список приказов: ",res)
+	}
+
+	bot.Send(tgbotapi.NewMessage(chatId,res))
+}
+
+func selectDocument( bot *tgbotapi.BotAPI, chatId int64, document Document ){
+	id  := strconv.Itoa(document.Document_id)
+	year := strconv.Itoa(document.Year)
+
+	resp, err := http.Get("http://localhost:8080/document/" + id + "/" + year)
 	if err != nil {
 		logger.Error.Log("error: неверный запрос", "")
 	}
@@ -146,7 +183,6 @@ func selectDocument( bot *tgbotapi.BotAPI, chatId int64, code string){
 	Name := doc.Name
 	Author := doc.Author
 	Creationdate := doc.Creationdate
-
 	res := "Номер приказа:" + strconv.Itoa(Document_id) + "\n" + "Год:" + strconv.Itoa(Year) + "\n" + "Название:" + Name + "\n" + "Автор:" + Author + "\n" + "Дата создания:" + Creationdate
 	bot.Send(tgbotapi.NewMessage(chatId,res))
 	fmt.Println("Ваш приказ: ",res)
@@ -240,9 +276,10 @@ func updateDocument(document Document) {
 	defer resp.Body.Close()
 }
 
-func PandocCreateDocument() error {
+func PandocCreateDocument(year int) error {
+	yearDoc := strconv.Itoa(year)
 
-	resp, err := http.Get("http://localhost:8080/maxiddocuments")
+	resp, err := http.Get("http://localhost:8080/maxiddocuments" + "/" + yearDoc)
 	if err != nil {
 		logger.Error.Log("error: неверный запрос", "")
 		return err 
@@ -269,8 +306,8 @@ func PandocCreateDocument() error {
 
 	// Запускаем команду pandoc
 	// Команда и аргументы для pandoc
-
-	path := fmt.Sprintf("/home/alex/Study/Document/%s.docx", res)
+    
+	path := fmt.Sprintf("/home/alex/Study/Document/%d/%s.docx", year, res)
 
 	cmdArgs := []string{"test.html", "-o", path}
 	fmt.Println(cmdArgs)
@@ -285,4 +322,17 @@ func PandocCreateDocument() error {
 	}
 
 	return nil
+}
+
+func PushDocumentToTelegram(id string, bot *tgbotapi.BotAPI, chatId int64,) {
+
+	docFolder := "/home/alex/Study/Document"
+
+	// Отправляем все документы из папки
+
+	filename := fmt.Sprintf("%s.docx", id)
+	filePath := filepath.Join(docFolder, filename)
+
+	msg := tgbotapi.NewDocument(chatId, tgbotapi.FilePath(filePath))
+	bot.Send(msg)
 }

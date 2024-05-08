@@ -131,10 +131,25 @@ func GetDocuments(c *gin.Context) {
 	}
 }
 
+
+func GetDocumentsYear(c *gin.Context) {
+	year := c.Param("year")
+	employees := GettingDocumentsYear(year)
+
+	if employees == nil || len(employees) == 0 {
+		c.AbortWithStatus(http.StatusNotFound)
+		logger.Error.Log("Error loading GettingDocumentsYear", "err")
+	} else {
+		c.IndentedJSON(http.StatusOK, employees)
+		logger.Info.Log("Successfully get all documents", "")
+	}
+}
+
 func GetDocument(c *gin.Context) {
 
 	code := c.Param("code")
-	product := GettingDocument(code)
+	year := c.Param("year")
+	product := GettingDocument(code, year)
 
 	if product == nil {
 		c.AbortWithStatus(http.StatusNotFound)
@@ -155,9 +170,10 @@ func AddDocument (c *gin.Context) {
 		logger.Error.Log("Error loading AddDocument", "err")
 	} else {
 		logger.Info.Log("Successfully start AddDocument!", "")
-		AddingDocument(doc)
+		AddingDocument(doc) 
 		c.IndentedJSON(http.StatusCreated, doc)
-		logger.Info.Log("Successfully add document", "")
+		logger.Info.Log("Successfully add document", "")			
+		
 	}
 }
 
@@ -179,21 +195,22 @@ func UpdateDocument(c *gin.Context) {
 func DeleteDocument(c *gin.Context) {
 
 	code := c.Param("code")
+	year := c.Param("year")
 
 	if err := code; err == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
 		logger.Error.Log("Error loading DeleteDocument", "err")
 	} else {
 		logger.Info.Log("Successfully start DeleteDocument!", "")
-		DelDocument(code)
+		DelDocument(code, year)
 		c.IndentedJSON(http.StatusCreated, "Document with id:" + code + " was deleted")
 		logger.Info.Log("Document with id:" + code + " was deleted", "")
 	}
 }
 
 func MaxIdDocument(c *gin.Context) {
-
-	employees := GettingMaxIdDocument()
+	year := c.Param("year")
+	employees := GettingMaxIdDocument(year)
 
 	if employees == nil{
 		c.AbortWithStatus(http.StatusNotFound)

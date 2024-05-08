@@ -1,7 +1,6 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 )
 
@@ -33,16 +32,8 @@ func GettingEmployees() []Employee {
 
 func GettingEmployee(code string) *Employee {
 
-	db, err := sql.Open("postgres", "postgres"+":"+"12345"+"@tcp(127.0.0.1:8080)/"+"orders_app")
 	empl := &Employee{}
-	if err != nil {
-		// simply print the error to the console
-		fmt.Println("Err", err.Error())
-		// returns nil on error
-		return nil
-	}
-    
-	defer db.Close()
+
 	//results, err := Db.Query("SELECT * FROM employee WHERE employee_id = ? ", code)
 
 	sqlstm := fmt.Sprintf("SELECT * FROM employee WHERE employee_id = '%s'",
@@ -69,91 +60,41 @@ func GettingEmployee(code string) *Employee {
 
 func AddingEmployee(empl Employee) {
 
-	db, err := sql.Open("postgres", "postgres"+":"+"12345"+"@tcp(127.0.0.1:8080)/"+"orders_app")
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// defer the close till after this function has finished
-	// executing
-	defer db.Close()
-
-	// curl http://localhost:8080/employee
-	// --include
-	// --header "Content-Type: application/json"
-	// --request "POST"
-	// --data '{"employee_id":12131, "name": "Alex","exhausted":true, "role": "dwd", "phone":"dwdw"}'
-
 	sqlstm := fmt.Sprintf("INSERT INTO employee (employee_id, name, exhausted, role, phone) VALUES ('%d', '%s', '%t\n', '%s', '%s')",
 		empl.Employee_id, empl.Name, empl.Exhausted, empl.Role, empl.Phone)
 
-	insert, err := Db.Query(sqlstm)
-
+	_,err := Db.Query(sqlstm)
 	// if there is an error inserting, handle it
 	if err != nil {
 		panic(err.Error())
-		//
 	}
-
-	defer insert.Close()
 }
 
 func UpEmployee(empl Employee) {
 
-	db, err := sql.Open("postgres", "postgres"+":"+"12345"+"@tcp(127.0.0.1:8080)/"+"orders_app")
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// defer the close till after this function has finished
-	// executing
-	defer db.Close()
-
-	// curl http://localhost:8080/employee
-	// --include
-	// --header "Content-Type: application/json"
-	// --request "UPDATE"
-	// --data '{"employee_id":12131, "name": "Alex","exhausted":true, "role": "dwd", "phone":"dwdw"}'
-
 	sqlstm := fmt.Sprintf("UPDATE employee SET name = '%s', exhausted = '%t\n', role='%s' , phone='%s' WHERE employee_id = '%d'",
 		empl.Name, empl.Exhausted, empl.Role, empl.Phone, empl.Employee_id)
 
-	insert, err := Db.Query(sqlstm)
+	_, err := Db.Query(sqlstm)
 
 	// if there is an error inserting, handle it
 	if err != nil {
 		panic(err.Error())
 	}
 
-	defer insert.Close()
 }
 
 func DelEmployee(code string)  {
 
-	db, err := sql.Open("postgres", "postgres"+":"+"12345"+"@tcp(127.0.0.1:8080)/"+"orders_app")
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// defer the close till after this function has finished
-	// executing
-	defer db.Close()
-
-
 	sqlstm := fmt.Sprintf("DELETE FROM employee WHERE employee_id = '%s'",
 			code)
 
-	insert, err := Db.Query(sqlstm)
+	_, err := Db.Query(sqlstm)
 
 		// if there is an error inserting, handle it
 	if err != nil {
 		panic(err.Error())
 	}
-		
-	defer insert.Close()
 }
 
 //===================================================================DOCUMENT QUERIES==========================================================================//
@@ -182,22 +123,9 @@ func GettingDocuments() []Document {
 	return documents
 }
 
-func GettingDocument(code string) *Document {
+func GettingDocumentsYear(year string) []Document {
 
-	db, err := sql.Open("postgres", "postgres"+":"+"12345"+"@tcp(127.0.0.1:8080)/"+"orders_app")
-	doc := &Document{}
-	if err != nil {
-		// simply print the error to the console
-		fmt.Println("Err", err.Error())
-		// returns nil on error
-		return nil
-	}
-    
-	defer db.Close()
-
-	sqlstm := fmt.Sprintf("SELECT * FROM document WHERE document_id = '%s'",
-			code)
-
+	sqlstm := fmt.Sprintf("SELECT * FROM document WHERE year = '%s'", year)
 	results, err := Db.Query(sqlstm)
 
 	if err != nil {
@@ -205,123 +133,27 @@ func GettingDocument(code string) *Document {
 		return nil
 	}
 
-	if results.Next() {
+	documents := []Document{}
+	for results.Next() {
+		var doc Document
+		// for each row, scan into the Product struct
 		err = results.Scan(&doc.Document_id, &doc.Year, &doc.Path, &doc.Name, &doc.Author, &doc.Creationdate, &doc.Employee_id)
 		if err != nil {
-			return nil
+			panic(err.Error()) // proper error handling instead of panic in your app
 		}
-	} else {
 
-		return nil
+		// append the product into products array
+		documents = append(documents, doc)
 	}
 
-	return doc
+	return documents
 }
 
-func AddingDocument(doc Document) {
+func GettingMaxIdDocument(year string) *Document {
 
-	db, err := sql.Open("postgres", "postgres"+":"+"12345"+"@tcp(127.0.0.1:8080)/"+"orders_app")
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// defer the close till after this function has finished
-	// executing
-	defer db.Close()
-
-	// curl http://localhost:8080/employee
-	// --include
-	// --header "Content-Type: application/json"
-	// --request "POST"
-	// --data '{"employee_id":12131, "name": "Alex","exhausted":true, "role": "dwd", "phone":"dwdw"}'
-
-	sqlstm := fmt.Sprintf("INSERT INTO document (year, path, name, author, employee_id) VALUES ('%d', '%s', '%s', '%s', '%d')",
-		doc.Year, doc.Path, doc.Name, doc.Author, doc.Employee_id)
-
-	insert, err := Db.Query(sqlstm)
-
-	// if there is an error inserting, handle it
-	if err != nil {
-		panic(err.Error())
-		//
-	}
-
-	defer insert.Close()
-}
-
-func UpDocument(doc Document) {
-
-	db, err := sql.Open("postgres", "postgres"+":"+"12345"+"@tcp(127.0.0.1:8080)/"+"orders_app")
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// defer the close till after this function has finished
-	// executing
-	defer db.Close()
-
-	// curl http://localhost:8080/employee
-	// --include
-	// --header "Content-Type: application/json"
-	// --request "UPDATE"
-	// --data '{"employee_id":12131, "name": "Alex","exhausted":true, "role": "dwd", "phone":"dwdw"}'
-
-	sqlstm := fmt.Sprintf("UPDATE document SET year = '%d', path = 's%s', name = '%s', author = '%s', employee_id = '%d' WHERE document_id = '%d'",
-		doc.Year, doc.Path, doc.Name, doc.Author, doc.Employee_id, doc.Document_id)
-
-	insert, err := Db.Query(sqlstm)
-
-	// if there is an error inserting, handle it
-	if err != nil {
-		panic(err.Error())
-	}
-
-	defer insert.Close()
-}
-
-func DelDocument(code string)  {
-
-	db, err := sql.Open("postgres", "postgres"+":"+"12345"+"@tcp(127.0.0.1:8080)/"+"orders_app")
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// defer the close till after this function has finished
-	// executing
-	defer db.Close()
-
-
-	sqlstm := fmt.Sprintf("DELETE FROM document WHERE document_id = '%s'",
-			code)
-
-	insert, err := Db.Query(sqlstm)
-
-		// if there is an error inserting, handle it
-	if err != nil {
-		panic(err.Error())
-	}
-		
-	defer insert.Close()
-}
-
-
-func GettingMaxIdDocument() *Document {
-
-	db, err := sql.Open("postgres", "postgres"+":"+"12345"+"@tcp(127.0.0.1:8080)/"+"orders_app")
 	doc := &Document{}
-	if err != nil {
-		// simply print the error to the console
-		fmt.Println("Err", err.Error())
-		// returns nil on error
-		return nil
-	}
 
-	defer db.Close()
-
-	sqlstm := fmt.Sprintf("SELECT MAX(document_id) FROM document")
+	sqlstm := fmt.Sprintf("SELECT MAX(document_id) FROM document WHERE year = '%s'", year)
 
 	results, err := Db.Query(sqlstm)
 
@@ -339,3 +171,93 @@ func GettingMaxIdDocument() *Document {
 
 	return doc
 }
+
+func GettingDocument(code string, year string) *Document {
+
+	doc := &Document{}
+
+	sqlstm := fmt.Sprintf("SELECT * FROM document WHERE document_id = '%s' AND year = '%s'",
+			code, year)
+
+	results, err := Db.Query(sqlstm)
+
+	if err != nil {
+		fmt.Println("Err", err.Error())
+		return nil
+	}
+
+	if results.Next() {
+		err = results.Scan(&doc.Document_id, &doc.Year, &doc.Path, &doc.Name, &doc.Author, &doc.Creationdate, &doc.Employee_id)
+		if err != nil {
+			return nil
+		}
+	} else {
+		return nil
+	}
+
+	return doc
+}
+
+func AddingDocument(doc Document) {
+
+	var maxDocumentNumber int
+	sqlstm := fmt.Sprintf("SELECT MAX(document_id) FROM document WHERE year = '%d'", doc.Year)
+
+	results, err := Db.Query(sqlstm)
+
+	if err != nil {
+		fmt.Println("Err", err.Error())
+	}
+
+	if results.Next() {
+		err = results.Scan(&maxDocumentNumber)
+		if err != nil {
+			fmt.Println("success", err.Error())
+		}
+	}
+
+	// Увеличиваем номер документа на 1
+	doc.Document_id = maxDocumentNumber + 1
+	fmt.Println(doc)
+	sqlstm = fmt.Sprintf("INSERT INTO document (document_id, year, path, name, author, employee_id) VALUES ('%d', '%d', '%s', '%s', '%s', '%d')",
+		doc.Document_id, doc.Year, doc.Path, doc.Name, doc.Author, doc.Employee_id)
+
+	_, err = Db.Query(sqlstm)
+	
+	fmt.Println(sqlstm)
+	// if there is an error inserting, handle it
+	if err != nil {
+		panic(err.Error())
+		//
+	}
+}
+
+
+func UpDocument(doc Document) {
+
+	sqlstm := fmt.Sprintf("UPDATE document SET  path = '%s', name = '%s', author = '%s', employee_id = '%d' WHERE document_id = '%d' AND year = '%d'",
+		doc.Path, doc.Name, doc.Author, doc.Employee_id, doc.Document_id, doc.Year)
+
+	_, err := Db.Query(sqlstm)
+
+	// if there is an error inserting, handle it
+	if err != nil {
+		panic(err.Error())
+	}
+}
+
+func DelDocument(code, year string)  {
+
+	sqlstm := fmt.Sprintf("DELETE FROM document WHERE document_id = '%s' AND year = '%s'",
+			code, year)
+
+	_ , err := Db.Query(sqlstm)
+
+		// if there is an error inserting, handle it
+	if err != nil {
+		panic(err.Error())
+	}
+		
+}
+
+

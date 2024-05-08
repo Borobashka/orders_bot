@@ -49,10 +49,9 @@ var GetOrderOrEmployee = tgbotapi.NewReplyKeyboard(
         tgbotapi.NewKeyboardButton("один документ"),
 		tgbotapi.NewKeyboardButton("все документы"),
         tgbotapi.NewKeyboardButton("всех пользователей"),
+		tgbotapi.NewKeyboardButton("все документы за конкретный год"),
     ),
 )
-
-
 
 func StartBot() {
 	ChatBot := &ChatBot{}
@@ -170,7 +169,7 @@ func StartBot() {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Документ создан")
 				msg.ReplyMarkup = MainMenu
 				ChatBot.Bot.Send(msg)
-				pandocdoc := PandocCreateDocument()
+				pandocdoc := PandocCreateDocument(Document.Year)
 				if pandocdoc != nil{
 					logger.Error.Log("error: ", "")
 				}
@@ -194,19 +193,43 @@ func StartBot() {
 		} else if Tree.NameFunc == "get" && UserMessage == GetOrderOrEmployee.Keyboard[0][0].Text {
 			Tree.InsertFuncLeft(Tree.Key, "oneDocument")
 			Tree.Left.BotFunc = func(str string, Tree *Node){
-				msg := tgbotapi.NewMessage(ChatBot.Update.Message.Chat.ID, "введите id документа")
+				CreateDocument = make(map[int64]*Document)
+				CreateDocument[update.Message.From.ID] = new(Document)
+				CreateDocument[update.Message.From.ID].State = 0
+
+				msg := tgbotapi.NewMessage(ChatBot.Update.Message.Chat.ID, "введите год создание документа")
 				msg.ReplyToMessageID = ChatBot.Update.Message.MessageID
 				ChatBot.Bot.Send(msg)
 			}
 			Tree.Left.BotFunc(Tree.NameFunc, Tree)
-		} else if Tree.NameFunc == "get" && Tree.Left != nil && Tree.Left.NameFunc == "oneDocument" && UserMessage != "oneDocument" {
-			msg := tgbotapi.NewMessage(ChatBot.Update.Message.Chat.ID, "Ваш документ")
-			msg.ReplyToMessageID = ChatBot.Update.Message.MessageID
-			msg.ReplyMarkup = MainMenu
-			ChatBot.Bot.Send(msg)
-			selectDocument(ChatBot.Bot, update.Message.Chat.ID, update.Message.Text)
-			Tree.Left = nil
-			Tree.NameFunc = ""
+			Tree.Left.NameFunc = "oneDocument"
+		} else if Tree.NameFunc == "get" && Tree.Left!= nil && Tree.Left.NameFunc == "oneDocument" && UserMessage != "oneDocument" {
+			Document := CreateDocument[update.Message.From.ID]
+			if Document.State == 0 {
+				year,_ := strconv.Atoi(update.Message.Text)
+				Document.Year = year
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "введите номер документа")
+				ChatBot.Bot.Send(msg)
+				Document.State = 1
+			} else if Document.State == 1 {
+				id, _  := strconv.Atoi(update.Message.Text)
+				Document.Document_id = id
+				fmt.Println(Document)
+
+				selectDocument(ChatBot.Bot, update.Message.Chat.ID ,*Document)
+
+				filePath := fmt.Sprintf("/home/alex/Study/Document/%d/%d.docx", Document.Year, Document.Document_id)
+
+				documentConfig := tgbotapi.NewDocument(update.Message.Chat.ID, tgbotapi.FilePath(filePath))
+				ChatBot.Bot.Send(documentConfig)
+				
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Ваш документ")
+				msg.ReplyMarkup = MainMenu
+				ChatBot.Bot.Send(msg)
+				Document.State = 0
+				Tree.Left.NameFunc = ""
+				Tree.NameFunc = ""
+			} 
 		} else if Tree.NameFunc == "get" && UserMessage ==  GetOrderOrEmployee.Keyboard[0][2].Text {
 			msg := tgbotapi.NewMessage(ChatBot.Update.Message.Chat.ID, "Ваши сотрудники")
 			msg.ReplyToMessageID = ChatBot.Update.Message.MessageID
@@ -222,7 +245,24 @@ func StartBot() {
 			selectDocuments(ChatBot.Bot, update.Message.Chat.ID)
 
 			Tree.NameFunc = ""
-		} 
+		} else if Tree.NameFunc == "get" && UserMessage ==  GetOrderOrEmployee.Keyboard[0][3].Text {
+			Tree.InsertFuncRight(Tree.Key, "AllDocumentsYear")
+			Tree.Right.BotFunc = func(str string, Tree *Node){
+				msg := tgbotapi.NewMessage(ChatBot.Update.Message.Chat.ID, "введите год документа")
+				msg.ReplyToMessageID = ChatBot.Update.Message.MessageID
+				ChatBot.Bot.Send(msg)
+			}
+			Tree.Right.BotFunc(Tree.NameFunc, Tree)
+		} else if Tree.NameFunc == "get" && Tree.Right != nil && Tree.Right.NameFunc == "AllDocumentsYear" && UserMessage != "AllDocumentsYear" {
+			msg := tgbotapi.NewMessage(ChatBot.Update.Message.Chat.ID, "Ваш документ")
+			msg.ReplyToMessageID = ChatBot.Update.Message.MessageID
+			msg.ReplyMarkup = MainMenu
+			ChatBot.Bot.Send(msg)
+			selectDocumentsYears(ChatBot.Bot, update.Message.Chat.ID, update.Message.Text)
+			PushDocumentToTelegram(update.Message.Text, ChatBot.Bot, update.Message.Chat.ID)
+			Tree.Right = nil
+			Tree.NameFunc = ""
+		}	
 
 		// update
 		if UserMessage == MainMenu.Keyboard[0][2].Text  {

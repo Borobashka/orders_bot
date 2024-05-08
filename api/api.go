@@ -8,6 +8,7 @@ import(
 
 func StartApi(){
 	R := gin.Default()
+
 	R.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"data": "hello world"})    
 	})
@@ -18,11 +19,12 @@ func StartApi(){
 	R.DELETE("/employee/:code", database.DeleteEmployee)
 
 	R.GET("/documents", database.GetDocuments)
-	R.GET("/maxiddocuments", database.MaxIdDocument)
-	R.GET("/document/:code", database.GetDocument)
+	R.GET("/documents/:year", database.GetDocumentsYear) 
+	R.GET("/maxiddocuments/:year", database.MaxIdDocument) // дописать запрос в боте
+	R.GET("/document/:code/:year", database.GetDocument) // дописать запрос в боте
 	R.POST("/document", database.AddDocument)
 	R.PATCH("/document",  database.UpdateDocument)
-	R.DELETE("/document/:code", database.DeleteDocument)
+	R.DELETE("/document/:code/:year", database.DeleteDocument)
 
-	R.Run()
+	R.Run(":8080")
 }
